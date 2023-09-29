@@ -147,6 +147,7 @@ public class GoogleTransferExtension implements TransferExtension {
             jsonFactory,
             monitor,
             context.getSetting("googleWritesPerSecond", 1.0),
+            appCredentials,
             idempotentImportExecutor,
             enableRetrying));
     importerBuilder.put(VIDEOS, new GoogleVideosImporter(appCredentials, jobStore, monitor));

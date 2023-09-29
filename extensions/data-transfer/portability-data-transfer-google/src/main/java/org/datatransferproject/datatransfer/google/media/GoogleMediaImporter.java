@@ -17,6 +17,7 @@ package org.datatransferproject.datatransfer.google.media;
 
 import static java.lang.String.format;
 import static org.datatransferproject.datatransfer.google.photos.GooglePhotosInterface.ERROR_HASH_MISMATCH;
+import static org.datatransferproject.datatransfer.google.videos.GoogleVideosInterface.buildPhotosLibraryClient;
 import static org.datatransferproject.datatransfer.google.videos.GoogleVideosInterface.uploadBatchOfVideos;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
@@ -74,6 +75,7 @@ import org.datatransferproject.types.common.models.media.MediaAlbum;
 import org.datatransferproject.types.common.models.photos.PhotoAlbum;
 import org.datatransferproject.types.common.models.photos.PhotoModel;
 import org.datatransferproject.types.common.models.videos.VideoModel;
+import org.datatransferproject.types.transfer.auth.AppCredentials;
 import org.datatransferproject.types.transfer.auth.TokensAndUrlAuthData;
 
 public class GoogleMediaImporter
@@ -97,7 +99,7 @@ public class GoogleMediaImporter
   private final PhotosLibraryClient photosLibraryClient;
   private IdempotentImportExecutor retryingIdempotentExecutor;
   private Boolean enableRetrying;
-
+  private AppCredentials appCredentials;
   // We partition into groups of 49 as 50 is the maximum number of items that can be created
   // in one call. (We use 49 to avoid potential off by one errors)
   // https://developers.google.com/photos/library/guides/upload-media#creating-media-item
@@ -110,6 +112,7 @@ public class GoogleMediaImporter
       JsonFactory jsonFactory,
       Monitor monitor,
       double writesPerSecond,
+      AppCredentials appCredentials,
       IdempotentImportExecutor retryingIdempotentExecutor,
       boolean enableRetrying) {
     this(
@@ -123,6 +126,7 @@ public class GoogleMediaImporter
         new ConnectionProvider(jobStore),
         monitor,
         writesPerSecond,
+        appCredentials,
         retryingIdempotentExecutor,
         enableRetrying);
   }
@@ -171,6 +175,7 @@ public class GoogleMediaImporter
         monitor,
         writesPerSecond,
         null,
+        null,
         false);
   }
 
@@ -185,6 +190,7 @@ public class GoogleMediaImporter
       ConnectionProvider connectionProvider,
       Monitor monitor,
       double writesPerSecond,
+      AppCredentials appCredentials,
       IdempotentImportExecutor retryingIdempotentExecutor,
       boolean enableRetrying) {
     this.credentialFactory = credentialFactory;
@@ -197,6 +203,7 @@ public class GoogleMediaImporter
     this.connectionProvider = connectionProvider;
     this.monitor = monitor;
     this.writesPerSecond = writesPerSecond;
+    this.appCredentials = appCredentials;
     this.retryingIdempotentExecutor = retryingIdempotentExecutor;
     this.enableRetrying = enableRetrying;
   }
@@ -387,7 +394,7 @@ public class GoogleMediaImporter
           jobId,
           batch,
           dataStore,
-          photosLibraryClient,
+          buildPhotosLibraryClient(appCredentials, authData),
           executor,
           connectionProvider,
           monitor);
