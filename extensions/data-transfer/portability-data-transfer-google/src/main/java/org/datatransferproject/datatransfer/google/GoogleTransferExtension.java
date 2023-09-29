@@ -30,6 +30,7 @@ import org.datatransferproject.datatransfer.google.gplus.GooglePlusExporter;
 import org.datatransferproject.datatransfer.google.mail.GoogleMailExporter;
 import org.datatransferproject.datatransfer.google.mail.GoogleMailImporter;
 import org.datatransferproject.datatransfer.google.media.GoogleMediaExporter;
+import org.datatransferproject.datatransfer.google.media.GoogleMediaImporter;
 import org.datatransferproject.datatransfer.google.music.GoogleMusicExporter;
 import org.datatransferproject.datatransfer.google.music.GoogleMusicImporter;
 import org.datatransferproject.datatransfer.google.photos.GooglePhotosExporter;
@@ -40,6 +41,7 @@ import org.datatransferproject.datatransfer.google.videos.GoogleVideosExporter;
 import org.datatransferproject.datatransfer.google.videos.GoogleVideosImporter;
 import org.datatransferproject.spi.cloud.storage.AppCredentialStore;
 import org.datatransferproject.spi.cloud.storage.JobStore;
+import org.datatransferproject.spi.cloud.storage.TemporaryPerJobDataStore;
 import org.datatransferproject.spi.transfer.idempotentexecutor.IdempotentImportExecutor;
 import org.datatransferproject.spi.transfer.idempotentexecutor.IdempotentImportExecutorExtension;
 import org.datatransferproject.types.common.models.DataVertical;
@@ -92,6 +94,7 @@ public class GoogleTransferExtension implements TransferExtension {
     }
 
     JobStore jobStore = context.getService(JobStore.class);
+    TemporaryPerJobDataStore dataStore = context.getService(TemporaryPerJobDataStore.class);
     HttpTransport httpTransport = context.getService(HttpTransport.class);
     JsonFactory jsonFactory = context.getService(JsonFactory.class);
 
@@ -130,6 +133,17 @@ public class GoogleTransferExtension implements TransferExtension {
         new GooglePhotosImporter(
             credentialFactory,
             jobStore,
+            jsonFactory,
+            monitor,
+            context.getSetting("googleWritesPerSecond", 1.0),
+            idempotentImportExecutor,
+            enableRetrying));
+    importerBuilder.put(
+        MEDIA,
+        new GoogleMediaImporter(
+            credentialFactory,
+            jobStore,
+            dataStore,
             jsonFactory,
             monitor,
             context.getSetting("googleWritesPerSecond", 1.0),

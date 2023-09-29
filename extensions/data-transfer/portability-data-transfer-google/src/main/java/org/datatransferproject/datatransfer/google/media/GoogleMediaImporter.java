@@ -95,11 +95,37 @@ public class GoogleMediaImporter
   private final GooglePhotosInterface photosInterface;
   private final HashMap<UUID, BaseMultilingualDictionary> multilingualStrings = new HashMap<>();
   private final PhotosLibraryClient photosLibraryClient;
+  private IdempotentImportExecutor retryingIdempotentExecutor;
+  private Boolean enableRetrying;
 
   // We partition into groups of 49 as 50 is the maximum number of items that can be created
   // in one call. (We use 49 to avoid potential off by one errors)
   // https://developers.google.com/photos/library/guides/upload-media#creating-media-item
   private static final int BATCH_UPLOAD_SIZE = 49;
+
+  public GoogleMediaImporter(
+      GoogleCredentialFactory credentialFactory,
+      JobStore jobStore,
+      TemporaryPerJobDataStore dataStore,
+      JsonFactory jsonFactory,
+      Monitor monitor,
+      double writesPerSecond,
+      IdempotentImportExecutor retryingIdempotentExecutor,
+      boolean enableRetrying) {
+    this(
+        credentialFactory,
+        jobStore,
+        dataStore,
+        jsonFactory,
+        new HashMap<>(),  /*photosInterfacesMap*/
+        null,  /*photosInterface*/
+        null,  /*photosLibraryClient*/
+        new ConnectionProvider(jobStore),
+        monitor,
+        writesPerSecond,
+        retryingIdempotentExecutor,
+        enableRetrying);
+  }
 
   public GoogleMediaImporter(
       GoogleCredentialFactory credentialFactory,
@@ -133,6 +159,34 @@ public class GoogleMediaImporter
       ConnectionProvider connectionProvider,
       Monitor monitor,
       double writesPerSecond) {
+    this(
+        credentialFactory,
+        jobStore,
+        dataStore,
+        jsonFactory,
+        photosInterfacesMap,
+        photosInterface,
+        photosLibraryClient,
+        connectionProvider,
+        monitor,
+        writesPerSecond,
+        null,
+        false);
+  }
+
+  GoogleMediaImporter(
+      GoogleCredentialFactory credentialFactory,
+      JobStore jobStore,
+      TemporaryPerJobDataStore dataStore,
+      JsonFactory jsonFactory,
+      Map<UUID, GooglePhotosInterface> photosInterfacesMap,
+      GooglePhotosInterface photosInterface,
+      PhotosLibraryClient photosLibraryClient,
+      ConnectionProvider connectionProvider,
+      Monitor monitor,
+      double writesPerSecond,
+      IdempotentImportExecutor retryingIdempotentExecutor,
+      boolean enableRetrying) {
     this.credentialFactory = credentialFactory;
     this.jobStore = jobStore;
     this.dataStore = dataStore;
@@ -143,6 +197,8 @@ public class GoogleMediaImporter
     this.connectionProvider = connectionProvider;
     this.monitor = monitor;
     this.writesPerSecond = writesPerSecond;
+    this.retryingIdempotentExecutor = retryingIdempotentExecutor;
+    this.enableRetrying = enableRetrying;
   }
 
   @Override
