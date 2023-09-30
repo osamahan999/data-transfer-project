@@ -115,6 +115,8 @@ public class GooglePhotosInterface {
     if (pageToken.isPresent()) {
       params.put(TOKEN_KEY, pageToken.get());
     }
+
+    if (true) {throw new IOException("test!");}
     return makeGetRequest(BASE_URL + "albums", Optional.of(params), AlbumListResponse.class);
   }
 

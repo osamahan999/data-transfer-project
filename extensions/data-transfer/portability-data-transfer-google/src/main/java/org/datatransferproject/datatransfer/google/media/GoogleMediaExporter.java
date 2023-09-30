@@ -265,9 +265,7 @@ public class GoogleMediaExporter implements Exporter<TokensAndUrlAuthData, Media
         // Add album info to list so album can be recreated later
         MediaAlbum album = new MediaAlbum(googleAlbum.getId(), googleAlbum.getTitle(), null);
         albums.add(album);
-        if (album.getName().equals("error")) {
-          throw new IOException("Hello World");
-        }
+
         monitor.debug(
             () -> String.format("%s: Google Photos exporting album: %s", jobId, album.getId()));
 
