@@ -19,6 +19,7 @@ package org.datatransferproject.datatransfer.google.photos;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.IllegalStateException;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.GenericUrl;
@@ -116,7 +117,6 @@ public class GooglePhotosInterface {
       params.put(TOKEN_KEY, pageToken.get());
     }
 
-    if (true) {throw new IOException("test!");}
     return makeGetRequest(BASE_URL + "albums", Optional.of(params), AlbumListResponse.class);
   }
 
@@ -181,8 +181,16 @@ public class GooglePhotosInterface {
           .encodeToString(BaseEncoding.base16().decode(sha1.toUpperCase())));
     }
 
-    return makePostRequest(BASE_URL + "uploads/", Optional.of(PHOTO_UPLOAD_PARAMS),
-        Optional.of(headers.build()), httpContent, String.class);
+    // monitor.info(() -> "###" + contentBytes.length);
+    if (contentBytes.length == 3538706) {
+      throw new IllegalStateException("Error");
+    }
+    return makePostRequest(
+        BASE_URL + "uploads/",
+        Optional.of(PHOTO_UPLOAD_PARAMS),
+        Optional.of(headers.build()),
+        httpContent,
+        String.class);
   }
 
   public BatchMediaItemResponse createPhotos(NewMediaItemUpload newMediaItemUpload)
