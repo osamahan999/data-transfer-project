@@ -15,6 +15,8 @@
  */
 package org.datatransferproject.datatransfer.google.media;
 
+import static java.lang.String.format;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.auth.oauth2.Credential;
@@ -217,9 +219,16 @@ public class GoogleMediaExporter implements Exporter<TokensAndUrlAuthData, Media
 
     for (PhotoAlbum album : container.getAlbums()) {
       // GoogleAlbum googleAlbum = getOrCreatePhotosInterface(authData).getAlbum(album.getId());
-      GoogleAlbum googleAlbum = retryingExecutor.executeAndSwallowIOExceptions(
-          album.getId(), album.getName(), () -> getOrCreatePhotosInterface(authData).getAlbum(album.getId())
-      );
+      GoogleAlbum googleAlbum;
+      try {
+        googleAlbum = retryingExecutor.executeAndSwallowIOExceptions(
+            album.getId(), album.getName(), () -> getOrCreatePhotosInterface(authData).getAlbum(album.getId())
+        );
+      } catch (Exception e ) {
+        monitor.severe(() -> format("Error while fetching album: %s"));
+        continue;
+      }
+
 
       albumBuilder.add(new MediaAlbum(googleAlbum.getId(), googleAlbum.getTitle(), null));
       // Adding subresources tells the framework to recall export to get all the photos
@@ -314,7 +323,7 @@ public class GoogleMediaExporter implements Exporter<TokensAndUrlAuthData, Media
         albums.add(album);
 
         monitor.debug(
-            () -> String.format("%s: Google Photos exporting album: %s", jobId, album.getId()));
+            () -> format("%s: Google Photos exporting album: %s", jobId, album.getId()));
 
         // Add album id to continuation data
         continuationData.addContainerResource(new IdOnlyContainerResource(googleAlbum.getId()));
@@ -442,14 +451,14 @@ public class GoogleMediaExporter implements Exporter<TokensAndUrlAuthData, Media
           photos.add(photoModel);
 
           monitor.debug(
-              () -> String.format("%s: Google exporting photo: %s", jobId, photoModel.getDataId()));
+              () -> format("%s: Google exporting photo: %s", jobId, photoModel.getDataId()));
         }
       } else if (mediaItem.isVideo()) {
         if (shouldUpload) {
           VideoModel videoModel = GoogleMediaItem.convertToVideoModel(albumId, mediaItem);
           videos.add(videoModel);
           monitor.debug(
-              () -> String.format("%s: Google exporting video: %s", jobId, videoModel.getDataId()));
+              () -> format("%s: Google exporting video: %s", jobId, videoModel.getDataId()));
         }
       }
     }
