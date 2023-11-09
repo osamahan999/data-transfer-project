@@ -227,8 +227,9 @@ public class GoogleMediaExporter implements Exporter<TokensAndUrlAuthData, Media
     }
 
     for (PhotoModel photo : container.getPhotos()) {
-      GoogleMediaItem googleMediaItem =
-          getOrCreatePhotosInterface(authData).getMediaItem(photo.getDataId());
+      GoogleMediaItem googleMediaItem = retryingExecutor.executeAndSwallowIOExceptions(
+          photo.getIdempotentId(), photo.getName(), () -> getOrCreatePhotosInterface(authData).getMediaItem(photo.getDataId())
+      );
       photosBuilder.add(GoogleMediaItem.convertToPhotoModel(Optional.empty(), googleMediaItem));
     }
 
