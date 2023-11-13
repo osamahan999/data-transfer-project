@@ -224,6 +224,7 @@ public class GoogleMediaExporter implements Exporter<TokensAndUrlAuthData, Media
      if (googleAlbum == null) {
        continue;
      }
+
       albumBuilder.add(new MediaAlbum(googleAlbum.getId(), googleAlbum.getTitle(), null));
       // Adding subresources tells the framework to recall export to get all the photos
       subResources.add(new IdOnlyContainerResource(googleAlbum.getId()));
