@@ -16,22 +16,14 @@
 
 package org.datatransferproject.auth.google;
 
-import static org.datatransferproject.types.common.models.DataVertical.BLOBS;
-import static org.datatransferproject.types.common.models.DataVertical.CALENDAR;
-import static org.datatransferproject.types.common.models.DataVertical.CONTACTS;
-import static org.datatransferproject.types.common.models.DataVertical.MAIL;
-import static org.datatransferproject.types.common.models.DataVertical.MUSIC;
-import static org.datatransferproject.types.common.models.DataVertical.PHOTOS;
-import static org.datatransferproject.types.common.models.DataVertical.SOCIAL_POSTS;
-import static org.datatransferproject.types.common.models.DataVertical.TASKS;
-import static org.datatransferproject.types.common.models.DataVertical.VIDEOS;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Set;
 import org.datatransferproject.auth.OAuth2Config;
 import org.datatransferproject.types.common.models.DataVertical;
+
+import static org.datatransferproject.types.common.models.DataVertical.*;
 
 /**
  * Class that supplies Google-specific OAuth2 info
@@ -66,6 +58,7 @@ public class GoogleOAuthConfig implements OAuth2Config {
         .put(CONTACTS, ImmutableSet.of("https://www.googleapis.com/auth/contacts.readonly"))
         .put(MAIL, ImmutableSet.of("https://www.googleapis.com/auth/gmail.readonly"))
         .put(PHOTOS, ImmutableSet.of("https://www.googleapis.com/auth/photoslibrary.readonly"))
+        .put(MEDIA, ImmutableSet.of("https://www.googleapis.com/auth/photoslibrary"))
         // For G+
         .put(SOCIAL_POSTS, ImmutableSet.of("https://www.googleapis.com/auth/plus.login"))
         .put(TASKS, ImmutableSet.of("https://www.googleapis.com/auth/tasks.readonly"))
@@ -82,6 +75,7 @@ public class GoogleOAuthConfig implements OAuth2Config {
         .put(CALENDAR, ImmutableSet.of("https://www.googleapis.com/auth/calendar"))
         .put(CONTACTS, ImmutableSet.of("https://www.googleapis.com/auth/contacts"))
         .put(MAIL, ImmutableSet.of("https://www.googleapis.com/auth/gmail.modify"))
+        .put(MEDIA, ImmutableSet.of("https://www.googleapis.com/auth/photoslibrary"))
         .put(PHOTOS, ImmutableSet.of("https://www.googleapis.com/auth/photoslibrary.appendonly"))
         .put(TASKS, ImmutableSet.of("https://www.googleapis.com/auth/tasks"))
         .put(VIDEOS, ImmutableSet.of("https://www.googleapis.com/auth/photoslibrary"))

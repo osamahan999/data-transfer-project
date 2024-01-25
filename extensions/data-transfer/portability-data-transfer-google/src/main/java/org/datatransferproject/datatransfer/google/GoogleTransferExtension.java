@@ -30,6 +30,7 @@ import org.datatransferproject.datatransfer.google.gplus.GooglePlusExporter;
 import org.datatransferproject.datatransfer.google.mail.GoogleMailExporter;
 import org.datatransferproject.datatransfer.google.mail.GoogleMailImporter;
 import org.datatransferproject.datatransfer.google.media.GoogleMediaExporter;
+import org.datatransferproject.datatransfer.google.media.GoogleMediaImporter;
 import org.datatransferproject.datatransfer.google.music.GoogleMusicExporter;
 import org.datatransferproject.datatransfer.google.music.GoogleMusicImporter;
 import org.datatransferproject.datatransfer.google.photos.GooglePhotosExporter;
@@ -125,6 +126,13 @@ public class GoogleTransferExtension implements TransferExtension {
     importerBuilder.put(CALENDAR, new GoogleCalendarImporter(credentialFactory));
     importerBuilder.put(MAIL, new GoogleMailImporter(credentialFactory, monitor));
     importerBuilder.put(TASKS, new GoogleTasksImporter(credentialFactory));
+    importerBuilder.put(MEDIA, new GoogleMediaImporter(
+            credentialFactory,
+            jobStore,
+            jsonFactory,
+            appCredentials,
+            monitor,
+            1.0));
     importerBuilder.put(
         PHOTOS,
         new GooglePhotosImporter(
